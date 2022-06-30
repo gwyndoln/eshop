@@ -1,8 +1,5 @@
-import Button from '@mui/material/Button';
+import Home from './Home';
 
-const App = ({ str }: { str: string }) => {
-	console.log(str);
-	return <Button variant="contained">Hello World</Button>;
-};
+const App = () => <Home />;
 
 export default App;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import AppBar from '@mui/material/AppBar';
@@ -15,6 +15,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
+import CloseIcon from '@mui/icons-material/Close';
 
 const Search = styled('div')(({ theme }) => ({
 	position: 'relative',
@@ -28,7 +29,6 @@ const Search = styled('div')(({ theme }) => ({
 	width: '100%',
 	[theme.breakpoints.up('sm')]: {
 		marginLeft: theme.spacing(3),
-		width: 'auto',
 	},
 }));
 
@@ -44,25 +44,33 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
 	color: 'inherit',
+	width: '100%',
 	'& .MuiInputBase-input': {
 		padding: theme.spacing(1, 1, 1, 0),
 		// vertical padding + font size from searchIcon
 		paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-		transition: theme.transitions.create('width'),
 		width: '100%',
-		[theme.breakpoints.up('md')]: {
-			width: '20ch',
-		},
 	},
 }));
 
 const Header = () => {
+	const [searchInputValue, setSearchInputValue] = useState<string>('');
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
 		useState<null | HTMLElement>(null);
 
 	const isMenuOpen = Boolean(anchorEl);
 	const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+
+	const handleSearchInputChange = (
+		event: React.ChangeEvent<HTMLInputElement>
+	) => {
+		setSearchInputValue(event.target.value);
+	};
+
+	const handleSearchInputClear = () => {
+		setSearchInputValue('');
+	};
 
 	const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
 		setAnchorEl(event.currentTarget);
@@ -98,8 +106,8 @@ const Header = () => {
 			open={isMenuOpen}
 			onClose={handleMenuClose}
 		>
-			<MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-			<MenuItem onClick={handleMenuClose}>My account</MenuItem>
+			<MenuItem onClick={handleMenuClose}>Профиль</MenuItem>
+			<MenuItem onClick={handleMenuClose}>Мой аккаунт</MenuItem>
 		</Menu>
 	);
 
@@ -121,49 +129,53 @@ const Header = () => {
 			onClose={handleMobileMenuClose}
 		>
 			<MenuItem>
-				<IconButton size="large" aria-label="show 4 new mails" color="inherit">
+				<IconButton
+					size="large"
+					aria-label="Показать сообщения"
+					color="inherit"
+				>
 					<Badge badgeContent={4} color="error">
 						<MailIcon />
 					</Badge>
 				</IconButton>
-				<p>Messages</p>
+				<p>Сообщения</p>
 			</MenuItem>
 			<MenuItem>
 				<IconButton
 					size="large"
-					aria-label="show 17 new notifications"
+					aria-label="показать уведомления"
 					color="inherit"
 				>
 					<Badge badgeContent={17} color="error">
 						<NotificationsIcon />
 					</Badge>
 				</IconButton>
-				<p>Notifications</p>
+				<p>Уведомления</p>
 			</MenuItem>
 			<MenuItem onClick={handleProfileMenuOpen}>
 				<IconButton
 					size="large"
-					aria-label="account of current user"
+					aria-label="профиль пользователя"
 					aria-controls="primary-search-account-menu"
 					aria-haspopup="true"
 					color="inherit"
 				>
 					<AccountCircle />
 				</IconButton>
-				<p>Profile</p>
+				<p>Профиль</p>
 			</MenuItem>
 		</Menu>
 	);
 
 	return (
-		<Box>
+		<Box sx={{ flexGrow: 1 }}>
 			<AppBar position="static">
 				<Toolbar>
 					<IconButton
 						size="large"
 						edge="start"
 						color="inherit"
-						aria-label="open drawer"
+						aria-label="открыть каталог"
 						sx={{ mr: 2, borderRadius: 0 }}
 					>
 						<MenuIcon />
@@ -182,15 +194,25 @@ const Header = () => {
 							<SearchIcon />
 						</SearchIconWrapper>
 						<StyledInputBase
-							placeholder="Search…"
-							inputProps={{ 'aria-label': 'search' }}
+							placeholder="Поиск…"
+							inputProps={{ 'aria-label': 'поиск' }}
+							onChange={handleSearchInputChange}
+							value={searchInputValue}
 						/>
+						<IconButton
+							onClick={handleSearchInputClear}
+							size="large"
+							color="inherit"
+							sx={{ position: 'absolute', height: '100%', right: 0 }}
+						>
+							<CloseIcon />
+						</IconButton>
 					</Search>
 					<Box sx={{ flexGrow: 1 }} />
 					<Box sx={{ display: { xs: 'none', md: 'flex' } }}>
 						<IconButton
 							size="large"
-							aria-label="show 4 new mails"
+							aria-label="показать сообщения"
 							color="inherit"
 						>
 							<Badge badgeContent={4} color="error">
@@ -199,7 +221,7 @@ const Header = () => {
 						</IconButton>
 						<IconButton
 							size="large"
-							aria-label="show 17 new notifications"
+							aria-label="показать уведомления"
 							color="inherit"
 						>
 							<Badge badgeContent={17} color="error">
@@ -209,7 +231,7 @@ const Header = () => {
 						<IconButton
 							size="large"
 							edge="end"
-							aria-label="account of current user"
+							aria-label="профиль пользователя"
 							aria-controls={menuId}
 							aria-haspopup="true"
 							onClick={handleProfileMenuOpen}
@@ -221,7 +243,7 @@ const Header = () => {
 					<Box sx={{ display: { xs: 'flex', md: 'none' } }}>
 						<IconButton
 							size="large"
-							aria-label="show more"
+							aria-label="показать больше"
 							aria-controls={mobileMenuId}
 							aria-haspopup="true"
 							onClick={handleMobileMenuOpen}

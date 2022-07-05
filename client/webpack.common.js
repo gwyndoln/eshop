@@ -12,7 +12,7 @@ module.exports = {
 			// 	use: 'ts-loader',
 			// },
 			{
-				test: /\.(png|jpg|gif|svg|jpeg)$/i,
+				test: /\.(png|jpg|gif|svg|jpeg|webp)$/i,
 				type: 'asset/resource',
 			},
 		],

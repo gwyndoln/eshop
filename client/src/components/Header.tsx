@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
 import AppBar from '@mui/material/AppBar';
@@ -54,6 +54,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 const Header = () => {
+	const searchInputRef = useRef(null);
 	const [searchInputValue, setSearchInputValue] = useState<string>('');
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
@@ -70,6 +71,7 @@ const Header = () => {
 
 	const handleSearchInputClear = () => {
 		setSearchInputValue('');
+		searchInputRef.current.focus();
 	};
 
 	const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -194,6 +196,7 @@ const Header = () => {
 							<SearchIcon />
 						</SearchIconWrapper>
 						<StyledInputBase
+							inputRef={searchInputRef}
 							placeholder="Поиск…"
 							inputProps={{ 'aria-label': 'поиск' }}
 							onChange={handleSearchInputChange}

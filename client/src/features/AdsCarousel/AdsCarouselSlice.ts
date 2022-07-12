@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import adItems from '../../assets/adItems';
 
-interface IAdItem {
+export interface IAdItem {
 	id: number;
 	image: string;
 }
 
-export interface AdsCarouselState {
+interface AdsCarouselState {
 	value: IAdItem[];
 }
 
@@ -19,7 +19,5 @@ const adsCarouselSlice = createSlice({
 	initialState,
 	reducers: {},
 });
-
-// export const {} = adsCarouselSlice.actions
 
 export default adsCarouselSlice.reducer;

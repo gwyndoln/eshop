@@ -1,6 +1,7 @@
 import Box from '@mui/material/Box';
+import { IAdItem } from './AdsCarouselSlice';
 
-const AdItem = ({ image }: { image: string }) => (
+const AdsCarouselItem = ({ image }: Omit<IAdItem, 'id'>) => (
 	<Box
 		component="img"
 		alt="ad"
@@ -15,4 +16,4 @@ const AdItem = ({ image }: { image: string }) => (
 	/>
 );
 
-export default AdItem;
+export default AdsCarouselItem;

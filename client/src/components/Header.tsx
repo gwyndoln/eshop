@@ -170,7 +170,7 @@ const Header = () => {
 	);
 
 	return (
-		<Box sx={{ flexGrow: 1 }}>
+		<Box component="header" sx={{ flexGrow: 1 }}>
 			<AppBar position="static">
 				<Toolbar>
 					<IconButton

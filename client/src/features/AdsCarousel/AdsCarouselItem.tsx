@@ -7,10 +7,8 @@ const AdsCarouselItem = ({ image }: Omit<IAdItem, 'id'>) => (
 		alt="ad"
 		src={image}
 		sx={{
-			width: '100%',
-			minWidth: '696px',
-			height: '300px',
-			minHeight: '228px',
+			maxWidth: '100%',
+			height: 'auto',
 			borderRadius: '20px',
 		}}
 	/>

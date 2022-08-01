@@ -1,17 +1,14 @@
+import Card from '@mui/material/Card';
 import Box from '@mui/material/Box';
+import CardMedia from '@mui/material/CardMedia';
 import { IAdItem } from './AdsCarouselSlice';
 
 const AdsCarouselItem = ({ image }: Omit<IAdItem, 'id'>) => (
-	<Box
-		component="img"
-		alt="ad"
-		src={image}
-		sx={{
-			maxWidth: '100%',
-			height: 'auto',
-			borderRadius: '20px',
-		}}
-	/>
+	<Box>
+		<Card sx={{ borderRadius: '10px', boxShadow: 'none' }}>
+			<CardMedia component="img" image={image} />
+		</Card>
+	</Box>
 );
 
 export default AdsCarouselItem;

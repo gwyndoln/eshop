@@ -16,6 +16,7 @@ import MailIcon from '@mui/icons-material/Mail';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import MoreIcon from '@mui/icons-material/MoreVert';
 import CloseIcon from '@mui/icons-material/Close';
+import { Outlet } from 'react-router-dom';
 
 const Search = styled('div')(({ theme }) => ({
 	position: 'relative',
@@ -259,6 +260,7 @@ const Header = () => {
 			</AppBar>
 			{renderMobileMenu}
 			{renderMenu}
+			<Outlet />
 		</Box>
 	);
 };

@@ -4,7 +4,8 @@ import categoryItems from '../../assets/categoryItems';
 export interface IcategoryItem {
 	id: number;
 	image: string;
-	title: string;
+	cardTitle: string;
+	urlTitle: string;
 }
 
 export interface CategoryCardsState {

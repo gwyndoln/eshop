@@ -3,7 +3,6 @@ import Divider from '@mui/material/Divider';
 import Container from '@mui/material/Container';
 import Carousel from 'react-material-ui-carousel';
 import { useAppSelector } from '../app/hooks';
-import Header from './Header';
 import CategoryCard from '../features/CategoryCards/CategoryCard';
 import AdsCarouselItem from '../features/AdsCarousel/AdsCarouselItem';
 import Footer from './Footer';
@@ -14,7 +13,6 @@ const Home = () => {
 
 	return (
 		<>
-			<Header />
 			<Container component="main" sx={{ mt: '1em' }} maxWidth="xl">
 				<Carousel navButtonsAlwaysInvisible>
 					{adItems.map(({ id, image }) => (
@@ -22,8 +20,13 @@ const Home = () => {
 					))}
 				</Carousel>
 				<Grid container spacing={2} sx={{ mt: '20px', mb: '50px' }}>
-					{categoryItems.map(({ id, image, title }) => (
-						<CategoryCard key={id} title={title} image={image} />
+					{categoryItems.map(({ id, image, cardTitle, urlTitle }) => (
+						<CategoryCard
+							key={id}
+							image={image}
+							cardTitle={cardTitle}
+							urlTitle={urlTitle}
+						/>
 					))}
 				</Grid>
 				<Divider />

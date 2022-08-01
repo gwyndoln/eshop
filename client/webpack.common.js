@@ -20,6 +20,7 @@ module.exports = {
 	plugins: [
 		new HtmlWebpackPlugin({
 			template: './src/template.html',
+			publicPath: '/',
 		}),
 		new CopyPlugin({
 			patterns: [

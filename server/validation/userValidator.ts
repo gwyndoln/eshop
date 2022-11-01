@@ -4,15 +4,15 @@ import ApiError from '../error/api-error';
 
 export const userValidation = [
 	body('email')
+		.trim()
+		.normalizeEmail()
 		.isEmail()
 		.withMessage('Неверный email адрес')
-		.trim()
-		.escape()
-		.normalizeEmail(),
+		.escape(),
 	body('password')
-		.isLength({ min: 8 })
-		.withMessage('Пароль должен быть не менее 8 символов')
 		.trim()
+		.isLength({ min: 8, max: 255 })
+		.withMessage('Пароль должен быть не менее 8 символов')
 		.escape(),
 	(req: Request, res: Response, next: NextFunction) => {
 		const errors = validationResult(req);

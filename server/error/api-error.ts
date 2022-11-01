@@ -23,6 +23,10 @@ class ApiError extends Error {
 	static notFound(message: string) {
 		throw new ApiError(StatusCodes.NOT_FOUND, message);
 	}
+
+	static Forbidden(message: string) {
+		throw new ApiError(StatusCodes.FORBIDDEN, message);
+	}
 }
 
 export default ApiError;

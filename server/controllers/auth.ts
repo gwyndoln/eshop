@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
 import ApiError from '../error/api-error';
 import { User } from '../models/User';
+import { JwtPayload, userClaims } from '../types/types';
 
 const showLogin = async (req: Request, res: Response, next: NextFunction) => {
 	return res.status(StatusCodes.ACCEPTED).json({ msg: 'ok' });
@@ -12,46 +13,89 @@ const showLogin = async (req: Request, res: Response, next: NextFunction) => {
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { email, password } = req.body;
+		const { email, password }: userClaims = req.body;
 
 		const user = await User.findOne({ where: { email } });
 
 		if (!user) {
-			return next(ApiError.OK('Неверный email'));
+			return next(ApiError.Forbidden('Неверный email'));
 		}
 
 		const hash = user.password;
-		const match = await bcrypt.compare(password, hash);
+		const isMatch = await bcrypt.compare(password, hash);
 
-		if (!match) {
-			return next(ApiError.OK('Неверный пароль'));
+		if (!isMatch) {
+			return next(ApiError.Forbidden('Неверный пароль'));
 		}
 
-		const accessToken = jwt.sign(
-			{ email },
-			process.env.ACCESS_TOKEN_SECRET as string,
-			{
-				expiresIn: '30d',
-			}
-		);
+		if (!user.confirmed) {
+			return next(ApiError.Forbidden('Почта не подтверждена'));
+		}
 
-		return res.status(StatusCodes.OK).json({ accessToken });
-	} catch (error) {
-		next(error);
+		req.session.regenerate((err) => {
+			if (err) {
+				throw err;
+			}
+
+			req.session.user = { id: user.uuid };
+
+			req.session.save((err) => {
+				if (err) {
+					throw err;
+				}
+				//res.redirect('/')
+				return res
+					.status(StatusCodes.MOVED_TEMPORARILY)
+					.json({ user, session: req.session.user });
+			});
+		});
+	} catch (err) {
+		next(err);
 	}
+};
+
+const logout = (req: Request, res: Response, next: NextFunction) => {
+	if (!req.session.user) {
+		return res
+			.status(StatusCodes.OK)
+			.json({ msg: 'Пользователь не залогинен' });
+	}
+
+	req.session.user = null;
+
+	req.session.save((err) => {
+		if (err) {
+			next(err);
+		}
+
+		req.session.regenerate((err) => {
+			if (err) {
+				next(err);
+			}
+
+			return res
+				.status(StatusCodes.MOVED_TEMPORARILY)
+				.json({ msg: 'Успешный логаут' }); //.redirect('/')
+		});
+	});
 };
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { email, password } = req.body;
+		const { email, password }: userClaims = req.body;
 
-		const saltRounds = 10;
+		const saltRounds: number = 10;
 		const hash = await bcrypt.hash(password, saltRounds);
 
-		const user = await User.create({
-			email,
-			password: hash,
-		});
+		const user = await User.create(
+			{
+				email,
+				password: hash,
+			},
+			{ fields: ['email', 'password', 'uuid'] }
+		);
+
+		// sending a message to email
 
 		const transporter = nodemailer.createTransport({
 			host: 'smtp.gmail.com',
@@ -64,13 +108,13 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 		});
 
 		jwt.sign(
-			{ userId: user.userId },
+			{ id: user.uuid },
 			process.env.EMAIL_TOKEN_SECRET as string,
 			{
-				expiresIn: '30d',
+				expiresIn: '30s',
 			},
 			(err, emailToken) => {
-				const url = `http://localhost:3000/auth/confirmation/${emailToken}`;
+				const url = `http://localhost:5000/auth/confirmation/${emailToken}`;
 
 				transporter.sendMail({
 					from: process.env.EMAIL_LOGIN,
@@ -86,8 +130,8 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 				return res.status(StatusCodes.CREATED).json({ user });
 			}
 		);
-	} catch (error) {
-		next(error);
+	} catch (err) {
+		next(err);
 	}
 };
 
@@ -97,21 +141,17 @@ const confirmation = async (
 	next: NextFunction
 ) => {
 	try {
-		interface JwtPayload {
-			userId: string;
-		}
-
-		const { userId } = jwt.verify(
+		const { id } = jwt.verify(
 			req.params.emailToken,
 			process.env.EMAIL_TOKEN_SECRET as string
 		) as JwtPayload;
 
-		await User.update({ confirmed: true }, { where: { userId } });
+		await User.update({ confirmed: true }, { where: { uuid: id } });
 
-		return res.redirect('http://localhost:3000/auth/login');
-	} catch (error) {
-		next(error);
+		return res.redirect('/');
+	} catch (err) {
+		next(err);
 	}
 };
 
-export { register, confirmation, login, showLogin };
+export { register, confirmation, login, logout, showLogin };

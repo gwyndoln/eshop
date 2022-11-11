@@ -8,6 +8,7 @@ import errorHandler from './middleware/error-handler';
 import notFound from './middleware/not-found';
 import session from 'express-session';
 import sessionOptions from './sessionOptions';
+import isAuthenticated from './middleware/isAuthenticated';
 
 const app = express();
 
@@ -26,7 +27,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/auth', authRouter);
-app.use('/products', postCommentRouter);
+app.use('/products', isAuthenticated, postCommentRouter);
 app.use(notFound);
 app.use(errorHandler);
 

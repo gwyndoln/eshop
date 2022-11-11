@@ -1,22 +1,67 @@
+import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Comment } from './../models/Comment';
-import { Request, Response, NextFunction } from 'express';
+import { IUserComment } from '../types/types';
+import formidable from 'formidable';
 
 const postComment = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { text, userId } = req.body;
+		const { text, userId, image, video }: IUserComment = req.body;
 
-		const comment = await Comment.create(
-			{ text, userId },
-			{ fields: ['text', 'image', 'video', 'userId'] }
-		);
+		const getFilesUri = (file: formidable.File | formidable.File[]) => {
+			if (!file) {
+				return;
+			}
 
-		//const subComments = await comment?.$get('subComments');
-		const user = await comment.$get('user');
+			if (Array.isArray(file)) {
+				return file.map((item) => item.filepath);
+			}
 
-		return res.status(StatusCodes.OK).json({ comment, user });
-	} catch (error) {
-		next(error);
+			return [file.filepath];
+		};
+
+		let commentFields;
+
+		if (image && video) {
+			commentFields = [
+				{
+					text,
+					userId,
+					images: getFilesUri(image),
+					videos: getFilesUri(video),
+				},
+				{ fields: ['text', 'userId', 'images', 'videos'] },
+			];
+		}
+
+		if (image && !video) {
+			commentFields = [
+				{ text, userId, images: getFilesUri(image) },
+				{ fields: ['text', 'userId', 'images'] },
+			];
+		}
+
+		if (video && !image) {
+			commentFields = [
+				{ text, userId, videos: getFilesUri(video) },
+				{ fields: ['text', 'userId', 'videos'] },
+			];
+		}
+
+		if (!video && !image) {
+			commentFields = [{ text, userId }, { fields: ['text', 'userId'] }];
+		}
+
+		if (commentFields) {
+			const comment = await Comment.create(commentFields[0], commentFields[1]);
+
+			const user = await comment.$get('user');
+			//const subComments = await comment?.$get('subComments');
+
+			return res.status(StatusCodes.OK).json({ comment, user });
+		}
+	} catch (err) {
+		next(err);
 	}
 };
 

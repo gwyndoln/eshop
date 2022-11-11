@@ -8,6 +8,10 @@ class ApiError extends Error {
 		this.statusCode = statusCode;
 	}
 
+	static UnsuportedMedia(message: string) {
+		throw new ApiError(StatusCodes.UNSUPPORTED_MEDIA_TYPE, message);
+	}
+
 	static BadRequest(message: string) {
 		throw new ApiError(StatusCodes.BAD_REQUEST, message);
 	}

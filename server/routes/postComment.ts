@@ -1,9 +1,11 @@
-import express from 'express';
+import { Router } from 'express';
 import { postComment, postSubComment } from '../controllers/postComment';
+import commentParser from '../middleware/commentParser';
+import { commentValidation } from '../validation/commentValidaton';
 
-const router = express.Router();
+const router = Router();
 
-router.post('/postComment', postComment);
-router.post('/postSubComment', postSubComment);
+router.post('/postComment', commentParser, commentValidation, postComment);
+router.post('/postSubComment', commentValidation, postSubComment);
 
 export default router;

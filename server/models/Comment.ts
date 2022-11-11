@@ -11,14 +11,30 @@ import {
 
 @Table
 export class Comment extends Model {
-	@Column({ type: DataType.TEXT, allowNull: false })
+	@Column({ type: DataType.STRING(1000), allowNull: false })
 	text!: string;
 
-	@Column
-	image?: string;
+	@Column({
+		type: DataType.STRING(400),
+		set(value: string[]) {
+			this.setDataValue('images', value.join(';'));
+		},
+		get() {
+			return this.getDataValue('images').split(';');
+		},
+	})
+	images?: string;
 
-	@Column
-	video?: string;
+	@Column({
+		type: DataType.STRING(400),
+		set(value: string[]) {
+			this.setDataValue('videos', value.join(';'));
+		},
+		get() {
+			return this.getDataValue('videos').split(';');
+		},
+	})
+	videos?: string;
 
 	@Column({ defaultValue: 0 })
 	likes!: number;
@@ -35,7 +51,7 @@ export class Comment extends Model {
 
 	@ForeignKey(() => User)
 	@Column
-	userId?: number;
+	userId!: number;
 
 	@BelongsTo(() => User, {
 		foreignKey: { name: 'userId', allowNull: false },

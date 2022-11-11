@@ -5,15 +5,15 @@ import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
 import ApiError from '../error/api-error';
 import { User } from '../models/User';
-import { JwtPayload, userClaims } from '../types/types';
+import { JwtPayload, IUserClaims } from '../types/types';
 
 const showLogin = async (req: Request, res: Response, next: NextFunction) => {
-	return res.status(StatusCodes.ACCEPTED).json({ msg: 'ok' });
+	return res.status(StatusCodes.OK).json({ msg: 'ok' });
 };
 
 const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { email, password }: userClaims = req.body;
+		const { email, password }: IUserClaims = req.body;
 
 		const user = await User.findOne({ where: { email } });
 
@@ -55,11 +55,11 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 };
 
 const logout = (req: Request, res: Response, next: NextFunction) => {
-	if (!req.session.user) {
-		return res
-			.status(StatusCodes.OK)
-			.json({ msg: 'Пользователь не залогинен' });
-	}
+	// if (!req.session.user) {
+	// 	return res
+	// 		.status(StatusCodes.OK)
+	// 		.json({ msg: 'Пользователь не залогинен' });
+	// }
 
 	req.session.user = null;
 
@@ -82,7 +82,7 @@ const logout = (req: Request, res: Response, next: NextFunction) => {
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
 	try {
-		const { email, password }: userClaims = req.body;
+		const { email, password }: IUserClaims = req.body;
 
 		const saltRounds: number = 10;
 		const hash = await bcrypt.hash(password, saltRounds);
@@ -111,7 +111,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 			{ id: user.uuid },
 			process.env.EMAIL_TOKEN_SECRET as string,
 			{
-				expiresIn: '30s',
+				expiresIn: '1h',
 			},
 			(err, emailToken) => {
 				const url = `http://localhost:5000/auth/confirmation/${emailToken}`;
@@ -147,9 +147,37 @@ const confirmation = async (
 		) as JwtPayload;
 
 		await User.update({ confirmed: true }, { where: { uuid: id } });
-
-		return res.redirect('/');
+		//return res.redirect('/');
+		return res
+			.status(StatusCodes.OK)
+			.json({ msg: 'Успешное подтверждение аккаунта' });
 	} catch (err) {
+		//The error must be handled on current endpoint
+		if (err instanceof Error && err.name === 'TokenExpiredError') {
+			try {
+				const { id } = jwt.verify(
+					req.params.emailToken,
+					process.env.EMAIL_TOKEN_SECRET as string,
+					{ ignoreExpiration: true }
+				) as JwtPayload;
+
+				const user = await User.findOne({ where: { uuid: id } });
+
+				if (user?.confirmed) {
+					return res
+						.status(StatusCodes.OK)
+						.json({ msg: 'Регистрация уже пройдена' });
+				}
+
+				user?.destroy();
+
+				return res
+					.status(StatusCodes.UNAUTHORIZED)
+					.json({ msg: 'Пройдите регистрацию заново' });
+			} catch (err) {
+				throw err;
+			}
+		}
 		next(err);
 	}
 };

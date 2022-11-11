@@ -1,4 +1,4 @@
-import express from 'express';
+import { Router } from 'express';
 import {
 	register,
 	confirmation,
@@ -7,14 +7,14 @@ import {
 	logout,
 } from '../controllers/auth';
 import isAuthenticated from '../middleware/isAuthenticated';
-import { userValidation } from '../validation/userValidator';
+import { userValidation } from '../validation/userValidaton';
 
-const router = express.Router();
+const router = Router();
 
 router.post('/register', userValidation, register);
 router.get('/confirmation/:emailToken', confirmation);
 router.post('/login', userValidation, login);
-router.post('/logout', logout);
+router.post('/logout', isAuthenticated, logout);
 router.get('/login', isAuthenticated, showLogin);
 
 export default router;

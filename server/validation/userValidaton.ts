@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
-import ApiError from '../error/api-error';
+import { StatusCodes } from 'http-status-codes';
 
 export const userValidation = [
 	body('email')
@@ -17,11 +17,9 @@ export const userValidation = [
 	(req: Request, res: Response, next: NextFunction) => {
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
-			const msgArr = [];
-			for (const err of errors.array()) {
-				msgArr.push(err.msg);
-			}
-			next(ApiError.BadRequest(msgArr.join()));
+			return res
+				.status(StatusCodes.BAD_REQUEST)
+				.json({ errors: errors.array() });
 		}
 		next();
 	},

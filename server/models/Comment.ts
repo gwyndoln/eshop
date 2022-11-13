@@ -8,6 +8,7 @@ import {
 	Model,
 	Table,
 } from 'sequelize-typescript';
+import { Product } from './Product';
 
 @Table
 export class Comment extends Model {
@@ -20,7 +21,13 @@ export class Comment extends Model {
 			this.setDataValue('images', value.join(';'));
 		},
 		get() {
-			return this.getDataValue('images').split(';');
+			const images = this.getDataValue('images');
+
+			if (!images) {
+				return null;
+			}
+
+			return images.split(';');
 		},
 	})
 	images?: string;
@@ -31,30 +38,41 @@ export class Comment extends Model {
 			this.setDataValue('videos', value.join(';'));
 		},
 		get() {
-			return this.getDataValue('videos').split(';');
+			const videos = this.getDataValue('videos');
+
+			if (!videos) {
+				return null;
+			}
+
+			return videos.split(';');
 		},
 	})
 	videos?: string;
 
-	@Column({ defaultValue: 0 })
+	@Column({ defaultValue: 0, allowNull: false })
 	likes!: number;
 
 	@ForeignKey(() => Comment)
 	@Column
 	subCommentId?: number;
 
-	@BelongsTo(() => Comment, { foreignKey: 'subCommentId' })
+	@BelongsTo(() => Comment)
 	mainComment?: Comment;
 
-	@HasMany(() => Comment, { foreignKey: 'subCommentId' })
+	@HasMany(() => Comment)
 	subComments?: Comment[];
 
 	@ForeignKey(() => User)
 	@Column
 	userId!: number;
 
-	@BelongsTo(() => User, {
-		foreignKey: { name: 'userId', allowNull: false },
-	})
+	@BelongsTo(() => User)
 	user!: User;
+
+	@ForeignKey(() => Product)
+	@Column
+	productId!: number;
+
+	@BelongsTo(() => Product)
+	product!: Product;
 }

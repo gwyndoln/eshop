@@ -1,5 +1,7 @@
-import { Comment } from './Comment';
 import { Table, Column, Model, DataType, HasMany } from 'sequelize-typescript';
+import { Order } from './Order';
+import { Comment } from './Comment';
+import { Rating } from './Rating';
 
 @Table
 export class User extends Model {
@@ -21,6 +23,15 @@ export class User extends Model {
 	@Column({ defaultValue: false })
 	isAdmin!: boolean;
 
-	@HasMany(() => Comment, { foreignKey: 'userId' })
-	comments?: Comment;
+	@Column({ type: DataType.STRING(200) })
+	address?: string;
+
+	@HasMany(() => Comment)
+	comments?: Comment | Comment[];
+
+	@HasMany(() => Order)
+	orders?: Order | Order[];
+
+	@HasMany(() => Rating)
+	ratings?: Rating | Rating[];
 }

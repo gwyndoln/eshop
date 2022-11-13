@@ -1,11 +1,16 @@
 import { User } from './../models/User';
 import { Comment } from './../models/Comment';
 import formidable from 'formidable';
+import { Product } from '../models/Product';
 
 declare module 'express-session' {
 	export interface SessionData {
 		user?: { id: string } | null;
 	}
+}
+
+interface JwtPayload {
+	id?: string;
 }
 
 type IUserClaims = Pick<User, 'email' | 'password'>;
@@ -15,8 +20,10 @@ type IUserComment = Pick<Comment, 'text' | 'userId'> & {
 	image: formidable.File | formidable.File[];
 };
 
-interface JwtPayload {
-	id?: string;
-}
+type ICreateProductForm = Pick<Product, 'title' | 'price' | 'description'> & {
+	brand: string;
+	type: string;
+	image: formidable.File | formidable.File[];
+};
 
-export { IUserClaims, IUserComment, JwtPayload };
+export { JwtPayload, IUserClaims, IUserComment, ICreateProductForm };

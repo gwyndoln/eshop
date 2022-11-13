@@ -3,7 +3,8 @@ import express from 'express';
 import helmet from 'helmet';
 import { sequelize } from './sequelize';
 import authRouter from './routes/auth';
-import postCommentRouter from './routes/postComment';
+import createCommentRouter from './routes/createComment';
+import createProductRouter from './routes/createProduct';
 import errorHandler from './middleware/error-handler';
 import notFound from './middleware/not-found';
 import session from 'express-session';
@@ -27,13 +28,14 @@ app.use((req, res, next) => {
 });
 
 app.use('/auth', authRouter);
-app.use('/products', isAuthenticated, postCommentRouter);
+app.use('/products', isAuthenticated, createCommentRouter);
+app.use('/products', isAuthenticated, createProductRouter);
 app.use(notFound);
 app.use(errorHandler);
 
 (async () => {
 	try {
-		await sequelize.sync({ alter: true });
+		await sequelize.sync(); //{ alter: true }
 		app.listen(PORT, () => console.log(`Server is started on ${PORT} port`));
 	} catch (error) {
 		console.error(error);

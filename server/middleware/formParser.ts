@@ -2,8 +2,9 @@ import { Request, Response, NextFunction } from 'express';
 import formidable from 'formidable';
 import path from 'path';
 import ApiError from '../error/api-error';
+import checkFileType from '../functions/checkFileType';
 
-const commentParser = (req: Request, res: Response, next: NextFunction) => {
+const formParser = (req: Request, res: Response, next: NextFunction) => {
 	const form = formidable({
 		allowEmptyFiles: false,
 		uploadDir: path.resolve(__dirname, '..', 'files'),
@@ -11,7 +12,6 @@ const commentParser = (req: Request, res: Response, next: NextFunction) => {
 		maxFileSize: 50 * 1024 * 1024, //50mb
 		minFileSize: 50 * 1024, // 50kb
 		keepExtensions: true,
-		maxFields: 4,
 	});
 
 	form.onPart = (part) => {
@@ -20,29 +20,20 @@ const commentParser = (req: Request, res: Response, next: NextFunction) => {
 		const imageRegExp = /\.(jpeg|jpg|png)$/;
 		const VideoRegExp = /\.(mp4|webm)$/;
 
-		const checkFileType = (
-			file: formidable.Part,
-			regexp: RegExp,
-			allowedTypes: String[]
-		) => {
-			if (
-				file.mimetype &&
-				allowedTypes.includes(file.mimetype) &&
-				file.originalFilename &&
-				file.originalFilename.match(regexp)
-			) {
-				form._handlePart(part);
-				return;
-			}
-			return next(ApiError.UnsuportedMedia('Неправильный тип данных'));
-		};
+		const field = part.name;
 
-		if (part.name === 'image') {
-			return checkFileType(part, imageRegExp, allowedImageTypes);
+		if (field !== 'image' && field !== 'video') {
+			return form._handlePart(part);
 		}
 
-		if (part.name === 'video') {
-			return checkFileType(part, VideoRegExp, allowedVideoTypes);
+		const checkRegExp = field === 'image' ? imageRegExp : VideoRegExp;
+		const allowedFileTypes =
+			field === 'image' ? allowedImageTypes : allowedVideoTypes;
+
+		const isFileCorrect = checkFileType(part, checkRegExp, allowedFileTypes);
+
+		if (!isFileCorrect) {
+			return next(ApiError.UnsuportedMedia('Неправильный тип данных'));
 		}
 
 		form._handlePart(part);
@@ -59,4 +50,4 @@ const commentParser = (req: Request, res: Response, next: NextFunction) => {
 	});
 };
 
-export default commentParser;
+export default formParser;

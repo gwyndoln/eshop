@@ -1,24 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
-import { Comment } from './../models/Comment';
+import { Comment } from '../models/Comment';
 import { IUserComment } from '../types/types';
-import formidable from 'formidable';
+import getFilesUri from '../functions/getFilesUri';
 
-const postComment = async (req: Request, res: Response, next: NextFunction) => {
+const createComment = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	try {
 		const { text, userId, image, video }: IUserComment = req.body;
-
-		const getFilesUri = (file: formidable.File | formidable.File[]) => {
-			if (!file) {
-				return;
-			}
-
-			if (Array.isArray(file)) {
-				return file.map((item) => item.filepath);
-			}
-
-			return [file.filepath];
-		};
 
 		let commentFields;
 
@@ -65,7 +57,7 @@ const postComment = async (req: Request, res: Response, next: NextFunction) => {
 	}
 };
 
-const postSubComment = async (
+const createSubComment = async (
 	req: Request,
 	res: Response,
 	next: NextFunction
@@ -88,4 +80,4 @@ const postSubComment = async (
 	}
 };
 
-export { postComment, postSubComment };
+export { createComment, createSubComment };

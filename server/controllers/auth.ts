@@ -7,10 +7,6 @@ import ApiError from '../error/api-error';
 import { User } from '../models/User';
 import { JwtPayload, IUserClaims } from '../types/types';
 
-const showLogin = async (req: Request, res: Response, next: NextFunction) => {
-	return res.status(StatusCodes.OK).json({ msg: 'ok' });
-};
-
 const login = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { email, password }: IUserClaims = req.body;
@@ -182,4 +178,4 @@ const confirmation = async (
 	}
 };
 
-export { register, confirmation, login, logout, showLogin };
+export { register, confirmation, login, logout };

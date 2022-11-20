@@ -15,15 +15,26 @@ interface JwtPayload {
 
 type IUserClaims = Pick<User, 'email' | 'password'>;
 
-type IUserComment = Pick<Comment, 'text' | 'userId'> & {
+type ICommentForm = Pick<Comment, 'text'> & {
+	userId: string;
 	video: formidable.File | formidable.File[];
 	image: formidable.File | formidable.File[];
 };
 
-type ICreateProductForm = Pick<Product, 'title' | 'price' | 'description'> & {
+type ICommentFields = [
+	Pick<Comment, 'text' | 'productId'> & {
+		userId: string;
+		videos?: string[];
+		images?: string[];
+	},
+	{ fields: string[] }
+];
+
+type IProductForm = Pick<Product, 'title' | 'description'> & {
+	price: string;
 	brand: string;
 	type: string;
 	image: formidable.File | formidable.File[];
 };
 
-export { JwtPayload, IUserClaims, IUserComment, ICreateProductForm };
+export { JwtPayload, IUserClaims, ICommentForm, ICommentFields, IProductForm };

@@ -49,7 +49,7 @@ export class Product extends Model {
 	orders?: Order | Order[];
 
 	@HasMany(() => Rating)
-	overallRating?: Rating | Rating[];
+	rating?: Rating | Rating[];
 
 	@ForeignKey(() => Brand)
 	@Column

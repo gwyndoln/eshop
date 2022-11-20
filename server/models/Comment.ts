@@ -12,6 +12,9 @@ import { Product } from './Product';
 
 @Table
 export class Comment extends Model {
+	@Column({ defaultValue: DataType.UUIDV4, type: DataType.UUID })
+	uuid!: string;
+
 	@Column({ type: DataType.STRING(1000), allowNull: false })
 	text!: string;
 
@@ -21,7 +24,7 @@ export class Comment extends Model {
 			this.setDataValue('images', value.join(';'));
 		},
 		get() {
-			const images = this.getDataValue('images');
+			const images: string = this.getDataValue('images');
 
 			if (!images) {
 				return null;
@@ -30,7 +33,7 @@ export class Comment extends Model {
 			return images.split(';');
 		},
 	})
-	images?: string;
+	images?: string[];
 
 	@Column({
 		type: DataType.STRING(400),
@@ -38,7 +41,7 @@ export class Comment extends Model {
 			this.setDataValue('videos', value.join(';'));
 		},
 		get() {
-			const videos = this.getDataValue('videos');
+			const videos: string = this.getDataValue('videos');
 
 			if (!videos) {
 				return null;
@@ -47,14 +50,14 @@ export class Comment extends Model {
 			return videos.split(';');
 		},
 	})
-	videos?: string;
+	videos?: string[];
 
 	@Column({ defaultValue: 0, allowNull: false })
 	likes!: number;
 
 	@ForeignKey(() => Comment)
 	@Column
-	subCommentId?: number;
+	mainCommentId?: number;
 
 	@BelongsTo(() => Comment)
 	mainComment?: Comment;
@@ -63,14 +66,14 @@ export class Comment extends Model {
 	subComments?: Comment[];
 
 	@ForeignKey(() => User)
-	@Column
+	@Column({ allowNull: false })
 	userId!: number;
 
 	@BelongsTo(() => User)
 	user!: User;
 
 	@ForeignKey(() => Product)
-	@Column
+	@Column({ allowNull: false })
 	productId!: number;
 
 	@BelongsTo(() => Product)

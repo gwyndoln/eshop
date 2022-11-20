@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 import { StatusCodes } from 'http-status-codes';
 
-export const userValidation = [
+export const userValidatior = [
 	body('email')
 		.trim()
 		.normalizeEmail()

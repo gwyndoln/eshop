@@ -2,7 +2,7 @@ import { StatusCodes } from 'http-status-codes';
 import { NextFunction, Request, Response } from 'express';
 import { body, validationResult } from 'express-validator';
 
-export const commentValidation = [
+export const commentValidatior = [
 	body('text')
 		.trim()
 		.isLength({ min: 1, max: 1000 })

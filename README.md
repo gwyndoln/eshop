@@ -1,1 +1,1 @@
-This is setup for typescript react client + node server project
+react client + node server online marketplace application

@@ -9,11 +9,13 @@ import { Comment } from './models/Comment';
 import { User } from './models/User';
 import { Sequelize } from 'sequelize-typescript';
 
-export const sequelize = new Sequelize({
-	database: 'e_commerce',
+const sequelize = new Sequelize({
+	port: Number(process.env.DB_PORT) || 3306,
+	host: process.env.DB_HOST || 'localhost',
+	database: process.env.DB_NAME,
 	dialect: 'mysql',
-	username: process.env.MYSQL_LOGIN,
-	password: process.env.MYSQL_PASS,
+	username: process.env.DB_LOGIN || 'root',
+	password: process.env.DB_PASS || '',
 	models: [
 		User,
 		Comment,
@@ -26,3 +28,5 @@ export const sequelize = new Sequelize({
 		ProductDeliveryLocation,
 	],
 });
+
+export default sequelize;

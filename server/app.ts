@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { sequelize } from './sequelize';
+import sequelize from './sequelize';
 import router from './routes';
 import errorHandler from './middleware/error-handler';
 import notFound from './middleware/not-found';
@@ -33,7 +33,9 @@ app.use(errorHandler);
 
 (async () => {
 	try {
-		await sequelize.sync(); //{ alter: true }
+		async () => {
+			await sequelize.sync(); //{ alter: true }
+		};
 		app.listen(PORT, () => console.log(`Server is started on ${PORT} port`));
 	} catch (error) {
 		console.error(error);

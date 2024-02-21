@@ -53,4 +53,29 @@ const getSubComments = async (
 	}
 };
 
-export { createSubComment, getSubComments };
+const editSubComment = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
+	try {
+		const { commentId } = req.params;
+		const { text } = req.body;
+
+		let comment = await Comment.findOne({ where: { uuid: commentId } });
+
+		if (!comment) {
+			return next();
+		}
+
+		if (text) {
+			comment = await comment.update({ text });
+		}
+
+		return res.status(StatusCodes.OK).json({ comment });
+	} catch (error) {
+		next(error);
+	}
+};
+
+export { createSubComment, getSubComments, editSubComment };

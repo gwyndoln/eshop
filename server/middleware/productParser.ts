@@ -1,51 +1,68 @@
 import { Request, Response, NextFunction } from 'express';
 import formidable from 'formidable';
-import path from 'path';
+import { access, mkdir } from 'node:fs/promises';
 import ApiError from '../error/api-error';
 import checkFileType from '../functions/checkFileType';
+import parseFormPromise from '../functions/parseFormPromise';
+import { productUploadDir as uploadDir } from '../variables/variables';
 
-const productParser = (req: Request, res: Response, next: NextFunction) => {
-	const form = formidable({
-		allowEmptyFiles: false,
-		uploadDir: path.resolve(__dirname, '..', 'files'),
-		multiples: true,
-		maxFileSize: 50 * 1024 * 1024, //50mb
-		minFileSize: 50 * 1024, // 50kb
-		keepExtensions: true,
-	});
+const productParser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await access(uploadDir);
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      try {
+        await mkdir(uploadDir, { recursive: true });
+      } catch (error) {
+        next(error);
+      }
+    }
+  }
 
-	form.onPart = (part) => {
-		const allowedImageTypes = ['image/jpeg', 'image/png'];
-		const imageRegExp = /\.(jpeg|jpg|png)$/;
+  try {
+    const form = formidable({
+      allowEmptyFiles: false,
+      uploadDir,
+      multiples: true,
+      maxFileSize: 10 * 1024 * 1024, //10mb
+      keepExtensions: true,
+    });
 
-		if (
-			part.name === 'title' ||
-			part.name === 'price' ||
-			part.name === 'description' ||
-			part.name === 'brand' ||
-			part.name === 'type'
-		) {
-			return form._handlePart(part);
-		}
+    form.onPart = (part) => {
+      const allowedImageTypes = ['image/jpeg', 'image/png'];
+      const imageRegExp = /\.(jpeg|jpg|png)$/;
 
-		const isFileCorrect = checkFileType(part, imageRegExp, allowedImageTypes);
+      if (
+        part.name === 'title' ||
+        part.name === 'price' ||
+        part.name === 'description' ||
+        part.name === 'brand' ||
+        part.name === 'type'
+      ) {
+        return form._handlePart(part);
+      }
 
-		if (!isFileCorrect) {
-			return next(ApiError.UnsuportedMedia('Неправильный тип данных'));
-		}
+      const isFileCorrect = checkFileType(part, imageRegExp, allowedImageTypes);
 
-		form._handlePart(part);
-	};
+      if (!isFileCorrect) {
+        return next(ApiError.UnsuportedMedia('Неправильный тип данных'));
+      }
 
-	form.parse(req, (err, fields, files) => {
-		if (err) {
-			next(err);
-		}
+      form._handlePart(part);
+    };
 
-		req.body = { ...fields, ...files };
+    const { fields, files } = await parseFormPromise(req, form);
 
-		next();
-	});
+    req.body = { ...fields, ...files };
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 };
 
 export default productParser;

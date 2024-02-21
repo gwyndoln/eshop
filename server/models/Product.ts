@@ -28,7 +28,7 @@ export class Product extends Model {
 	price!: number;
 
 	@Column({
-		type: DataType.STRING(1000),
+		type: DataType.STRING(300),
 		allowNull: false,
 		set(value: string[]) {
 			this.setDataValue('images', value.join(';'));
@@ -37,7 +37,7 @@ export class Product extends Model {
 			return this.getDataValue('images').split(';');
 		},
 	})
-	images!: string;
+	images!: string[];
 
 	@Column({ type: DataType.STRING(2000), allowNull: false })
 	description!: string;

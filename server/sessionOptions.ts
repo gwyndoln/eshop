@@ -2,9 +2,9 @@ import Redis from 'ioredis';
 import connectRedis from 'connect-redis';
 import session from 'express-session';
 
-let RedisStore = connectRedis(session);
+const RedisStore = connectRedis(session);
 
-let redisClient = new Redis();
+const redisClient = new Redis();
 
 const sessionOptions = {
 	store: new RedisStore({ client: redisClient }),
@@ -15,7 +15,7 @@ const sessionOptions = {
 		httpOnly: true,
 		//secure: true,
 		maxAge: 30 * 24 * 60 * 60 * 1000,
-		sameSite: 'strict' as 'strict',
+		sameSite: 'strict',
 	},
 };
 

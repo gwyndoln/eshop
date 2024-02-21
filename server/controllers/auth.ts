@@ -80,7 +80,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 	try {
 		const { email, password }: IUserClaims = req.body;
 
-		const saltRounds: number = 10;
+		const saltRounds = 10;
 		const hash = await bcrypt.hash(password, saltRounds);
 
 		const user = await User.create(
@@ -171,6 +171,7 @@ const confirmation = async (
 					.status(StatusCodes.UNAUTHORIZED)
 					.json({ msg: 'Пройдите регистрацию заново' });
 			} catch (err) {
+				console.log('Неожиданная ошибка');
 				throw err;
 			}
 		}
